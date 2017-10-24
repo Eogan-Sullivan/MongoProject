@@ -15,6 +15,11 @@ import javax.swing.JButton;
 import java.awt.Checkbox;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+
+import org.bson.Document;
+
+import com.mongodb.BasicDBObject;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
@@ -27,6 +32,8 @@ public class MainMenu {
 	private mongoOperation mongoConnect;
 	private JTextPane txtSummary;
 	private Checkbox chkResolved;
+	private Document docReturned;
+	private BasicDBObject object;
 
 	/**
 	 * Launch the application.
@@ -70,7 +77,11 @@ public class MainMenu {
 		btnPostANotice.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 		
-			mongoConnect.Create(txtName.getText(), getSummary(), txtEmail.getText(),getResolved());	
+			docReturned = new Document("_id",txtName.getText())
+					.append("summary", getSummary())
+					.append("email",txtEmail.getText())
+					.append("resolved",getResolved());
+			mongoConnect.Create(docReturned);	
 			JOptionPane.showMessageDialog(null, "Post Success");
 			txtName.setText("");
 			txtEmail.setText("");
@@ -93,6 +104,11 @@ public class MainMenu {
 		frmEganSullivanT.getContentPane().add(btnSearch);
 		
 		JButton btnRemoveNotice = new JButton("Remove");
+		btnRemoveNotice.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mongoConnect.Delete();
+			}
+		});
 		btnRemoveNotice.setBounds(8, 106, 95, 23);
 		frmEganSullivanT.getContentPane().add(btnRemoveNotice);
 		

@@ -8,34 +8,41 @@ public class mongoOperation {
 	MongoClient mongoClient;
 	MongoDatabase database;
 	MongoCollection<Document> collection;
+	Document doc;
 	public mongoOperation() {
 		
 		mongoClient = new MongoClient();
 	}
 	
-	public mongoOperation(String dbName, String collectionName) {
-		 
+	public mongoOperation(String dbName, String collectionName) {		 
 		mongoClient = new MongoClient();
 		database = mongoClient.getDatabase(dbName);
-		collection = database.getCollection(collectionName);
-		
-		
+		collection = database.getCollection(collectionName);	
 	}
 	
 	
-	public void Create(String _id, String summary,String email, Boolean resolved ){
+	public void Create(Document document ){
 		
-			Document doc = new Document("_id",_id)
-						.append("summary", summary)
-						.append("email",email)
-						.append("resolved",resolved);
-			
-			collection.insertOne(doc);
+			collection.insertOne(document);
 	}
 	
-	public void Read()
+	public void Read(String value)
 	{
-		collection.find();
+		//collection.find();
+		
+	}
+	
+	public void Update(Document Updateddoc) {
+		
+	//	collection.updateOne(doc, Updateddoc);
+		
+		
+	}
+	
+	public void Delete() {
+		
+		collection.deleteOne(doc);
+		
 	}
 
 }
