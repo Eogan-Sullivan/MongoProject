@@ -34,6 +34,7 @@ public class MainMenu {
 	private Checkbox chkResolved;
 	private Document docReturned;
 	private BasicDBObject object;
+	private Document returned;
 
 	/**
 	 * Launch the application.
@@ -76,44 +77,86 @@ public class MainMenu {
 		JButton btnPostANotice = new JButton("Post ");
 		btnPostANotice.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				try {
+						docReturned = new Document("_id",txtName.getText())
+									 .append("summary", getSummary())
+									 .append("email",txtEmail.getText())
+									 .append("resolved",getResolved());
+						mongoConnect.Create(docReturned);	
+						JOptionPane.showMessageDialog(null, "Post Success");
+						txtName.setText("");
+						txtEmail.setText("");
+					}
 		
-			docReturned = new Document("_id",txtName.getText())
-					.append("summary", getSummary())
-					.append("email",txtEmail.getText())
-					.append("resolved",getResolved());
-			mongoConnect.Create(docReturned);	
-			JOptionPane.showMessageDialog(null, "Post Success");
-			txtName.setText("");
-			txtEmail.setText("");
-			
-			}
-		});
+				catch(Exception e)
+				{
+							JOptionPane.showMessageDialog(null,"Unexpected Error Occured");
+				}
+					}});
 		
-		btnPostANotice.setBounds(8, 38, 95, 23);
+		btnPostANotice.setBounds(10, 56, 95, 23);
 		frmEganSullivanT.getContentPane().add(btnPostANotice);
 		
 		JButton btnSearch = new JButton("Search");
 		btnSearch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+			
+				try {
+						returned = mongoConnect.Read(txtSearch.getText());
+						txtName.setText(returned.getString("_id"));
+						txtSummary.setText(returned.getString("summary"));
+						txtEmail.setText(returned.getString("email"));
+						chkResolved.setState(returned.getBoolean("resolved"));
+						txtSearch.setText("");
+					}
 				
-				//Search Summary For input in search Field
-				
+				catch(Exception a) {
+						JOptionPane.showMessageDialog(null, "Notice Not Found");
+				}		
 			}
 		});
-		btnSearch.setBounds(8, 72, 95, 23);
+		btnSearch.setBounds(10, 90, 95, 23);
 		frmEganSullivanT.getContentPane().add(btnSearch);
 		
 		JButton btnRemoveNotice = new JButton("Remove");
 		btnRemoveNotice.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				mongoConnect.Delete();
+			try {
+				mongoConnect.Delete(txtSummary.getText());
+				txtSummary.setText("");
+				txtName.setText("");
+				txtEmail.setText("");
+				chkResolved.setState(false);
+			}
+			catch(Exception b) {
+				
+				JOptionPane.showMessageDialog(null, "Error Deltition not occured");
+			}
 			}
 		});
-		btnRemoveNotice.setBounds(8, 106, 95, 23);
+		btnRemoveNotice.setBounds(10, 124, 95, 23);
 		frmEganSullivanT.getContentPane().add(btnRemoveNotice);
 		
 		JButton btnAppendNotice = new JButton("Append");
-		btnAppendNotice.setBounds(8, 140, 95, 23);
+		btnAppendNotice.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				try {
+				returned.replace("summary", txtSummary.getText());
+				returned.replace("email", txtEmail.getText());
+				returned.replace("resolved",chkResolved.getState());
+				mongoConnect.Update(returned,txtName.getText());
+				JOptionPane.showMessageDialog(null, "Information Updated");
+				}
+				
+				catch(Exception e) {
+					
+					JOptionPane.showMessageDialog(null, "Error Item not Deleted");
+				}
+				
+			}
+		});
+		btnAppendNotice.setBounds(10, 158, 95, 23);
 		frmEganSullivanT.getContentPane().add(btnAppendNotice);
 		
 		JLabel lblName = new JLabel(" Name:");
@@ -132,10 +175,6 @@ public class MainMenu {
 		txtName.setBounds(171, 42, 182, 20);
 		frmEganSullivanT.getContentPane().add(txtName);
 		txtName.setColumns(10);
-		
-		JButton btnOk = new JButton("Ok");
-		btnOk.setBounds(8, 174, 95, 23);
-		frmEganSullivanT.getContentPane().add(btnOk);
 		
 		txtSummary = new JTextPane();
 		txtSummary.setBounds(171, 75, 182, 91);
@@ -165,6 +204,10 @@ public class MainMenu {
 		txtSummary.setText("");
 		return txt;
 		
+	}
+	
+	private void setSummary(String summary) {
+		txtSummary.setText(summary);
 	}
 	
 	private Boolean getResolved() {
